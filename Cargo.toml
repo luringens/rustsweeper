@@ -1,0 +1,11 @@
+[package]
+name = "rustsweeper"
+version = "0.1.0"
+authors = ["Stian Soltvedt <soltvedt.stian@gmail.com>"]
+
+[dependencies]
+piston = "*"
+pistoncore-glutin_window = "*"
+piston2d-graphics = "*"
+piston2d-opengl_graphics = "*"
+rand = "*"
