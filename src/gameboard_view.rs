@@ -57,27 +57,25 @@ pub struct GameboardView {
 impl GameboardView {
     /// Creates a new gameboard view.
     pub fn new(settings: GameboardViewSettings) -> GameboardView {
-        GameboardView {
-            settings: settings,
-        }
+        GameboardView { settings: settings }
     }
 
     /// Draw gameboard.
-    pub fn draw<G: Graphics, C>(&self, controller: &GameboardController, glyphs: &mut C, c: &Context, g: &mut G)
+    pub fn draw<G: Graphics, C>(&self,
+                                controller: &GameboardController,
+                                glyphs: &mut C,
+                                c: &Context,
+                                g: &mut G)
         where C: CharacterCache<Texture = G::Texture>
     {
         use graphics::{Line, Rectangle, Image, Transformed};
         use gameboard::{CellState, BOARDSIZE};
 
         let ref settings = self.settings;
-        let board_rect = [
-            settings.position[0], settings.position[1],
-            settings.size, settings.size,
-        ];
+        let board_rect = [settings.position[0], settings.position[1], settings.size, settings.size];
 
         // Draw background
-        Rectangle::new(settings.background_color)
-            .draw(board_rect, &c.draw_state, c.transform, g);
+        Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
 
         // Draw each cell
         let cell_size = settings.size / 10.0;
@@ -85,37 +83,38 @@ impl GameboardView {
         for y in 0..BOARDSIZE {
             for x in 0..BOARDSIZE {
                 let color = match controller.gameboard.cells[y][x] {
-                    CellState::HiddenBlank =>      [0.1, 1.0, 1.0, 1.0],
-                    CellState::HiddenBomb =>       [1.0, 0.1, 1.0, 1.0],
-                    CellState::EmptyBlank =>       [1.0, 1.0, 0.1, 1.0],
+                    CellState::HiddenBlank => [0.1, 1.0, 1.0, 1.0],
+                    CellState::HiddenBomb => [1.0, 0.1, 1.0, 1.0],
+                    CellState::EmptyBlank => [1.0, 1.0, 0.1, 1.0],
                     CellState::EmptyNumber(num) => [0.1, 0.1, 1.0, 1.0],
-                    CellState::Bomb =>             [1.0, 0.1, 0.1, 1.0],
-                    CellState::FlaggedBomb =>      [0.1, 1.0, 0.1, 1.0],
-                    CellState::FlaggedBlank =>     [0.1, 0.1, 0.1, 1.0],
+                    CellState::Bomb => [1.0, 0.1, 0.1, 1.0],
+                    CellState::FlaggedBomb => [0.1, 1.0, 0.1, 1.0],
+                    CellState::FlaggedBlank => [0.1, 0.1, 0.1, 1.0],
                 };
                 let xpos = settings.position[0] + (x as f64) * (cell_size as f64);
                 let ypos = settings.position[1] + (y as f64) * (cell_size as f64);
                 let cell_rect = [xpos, ypos, cell_size, cell_size];
-                Rectangle::new(color)
-                    .draw(cell_rect, &c.draw_state, c.transform, g);
+                Rectangle::new(color).draw(cell_rect, &c.draw_state, c.transform, g);
 
                 if let CellState::EmptyNumber(num) = controller.gameboard.cells[y][x] {
                     let character = glyphs.character(34, num);
                     let ch_x = xpos + 15.0 + character.left();
                     let ch_y = ypos + 34.0 - character.top();
-                    text_image.draw(character.texture, &c.draw_state,
-                        c.transform.trans(ch_x, ch_y), g);
+                    text_image.draw(character.texture,
+                                    &c.draw_state,
+                                    c.transform.trans(ch_x, ch_y),
+                                    g);
                 }
             }
         }
-        
+
         // Draw selected cell background.
-        if let Some(ind) = controller.selected_cell {            
+        if let Some(ind) = controller.selected_cell {
             let pos = [ind[0] as f64 * cell_size, ind[1] as f64 * cell_size];
-            let cell_rect = [
-                settings.position[0] + pos[0], settings.position[1] + pos[1],
-                cell_size, cell_size
-            ];
+            let cell_rect = [settings.position[0] + pos[0],
+                             settings.position[1] + pos[1],
+                             cell_size,
+                             cell_size];
             Rectangle::new(settings.selected_cell_background_color)
                 .draw(cell_rect, &c.draw_state, c.transform, g);
         }
@@ -130,7 +129,7 @@ impl GameboardView {
 
             let vline = [x, settings.position[1], x, y2];
             cell_edge.draw(vline, &c.draw_state, c.transform, g);
-            
+
             let hline = [settings.position[0], y, x2, y];
             cell_edge.draw(hline, &c.draw_state, c.transform, g);
         }

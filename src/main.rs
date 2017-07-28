@@ -31,7 +31,7 @@ fn main() {
 
     let mut window: GlutinWindow = settings.build()
         .expect("Could not create window");
-    
+
     let mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
@@ -46,10 +46,11 @@ fn main() {
 
     while let Some(e) = events.next(&mut window) {
         gameboard_controller.event(gameboard_view.settings.position,
-                                   gameboard_view.settings.size, &e);
+                                   gameboard_view.settings.size,
+                                   &e);
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
-                use graphics::{clear};
+                use graphics::clear;
                 clear([1.0; 4], g);
                 gameboard_view.draw(&gameboard_controller, glyphs, &c, g);
             });

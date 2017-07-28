@@ -35,7 +35,7 @@ impl Gameboard {
         use rand;
         use rand::Rng;
 
-        let mut newcells: [[CellState; BOARDSIZE]; BOARDSIZE] = 
+        let mut newcells: [[CellState; BOARDSIZE]; BOARDSIZE] =
             [[CellState::HiddenBlank; BOARDSIZE]; BOARDSIZE];
         let mut rng = rand::thread_rng();
         for _ in 0..BOMBCOUNT {
@@ -44,8 +44,6 @@ impl Gameboard {
             newcells[y][x] = CellState::HiddenBomb;
         }
 
-        Gameboard {
-            cells: newcells,
-        }
+        Gameboard { cells: newcells }
     }
 }
