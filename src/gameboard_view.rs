@@ -2,6 +2,7 @@
 
 use graphics::types::Color;
 use graphics::{Context, Graphics};
+use graphics::character::CharacterCache;
 
 use GameboardController;
 
@@ -25,6 +26,8 @@ pub struct GameboardViewSettings {
     pub cell_edge_radius: f64,
     /// Selected cell background color
     pub selected_cell_background_color: Color,
+    /// Text color.
+    pub text_color: Color,
 }
 
 impl GameboardViewSettings {
@@ -40,6 +43,7 @@ impl GameboardViewSettings {
             board_edge_radius: 3.0,
             cell_edge_radius: 1.0,
             selected_cell_background_color: [0.9, 0.9, 1.0, 1.0],
+            text_color: [0.0, 0.0, 0.1, 1.0],
         }
     }
 }
@@ -59,8 +63,10 @@ impl GameboardView {
     }
 
     /// Draw gameboard.
-    pub fn draw<G: Graphics>(&self, controller: &GameboardController, c: &Context, g: &mut G) {
-        use graphics::{Line, Rectangle};
+    pub fn draw<G: Graphics, C>(&self, controller: &GameboardController, glyphs: &mut C, c: &Context, g: &mut G)
+        where C: CharacterCache<Texture = G::Texture>
+    {
+        use graphics::{Line, Rectangle, Image, Transformed};
         use gameboard::{CellState, BOARDSIZE};
 
         let ref settings = self.settings;
@@ -75,22 +81,31 @@ impl GameboardView {
 
         // Draw each cell
         let cell_size = settings.size / 10.0;
+        let text_image = Image::new_color(settings.text_color);
         for y in 0..BOARDSIZE {
             for x in 0..BOARDSIZE {
                 let color = match controller.gameboard.cells[y][x] {
-                    CellState::HiddenBlank =>      [0.1, 0.9, 1.0, 1.0],
-                    CellState::HiddenBomb =>       [0.9, 0.1, 1.0, 1.0],
-                    CellState::EmptyBlank =>       [0.9, 0.9, 0.1, 1.0],
+                    CellState::HiddenBlank =>      [0.1, 1.0, 1.0, 1.0],
+                    CellState::HiddenBomb =>       [1.0, 0.1, 1.0, 1.0],
+                    CellState::EmptyBlank =>       [1.0, 1.0, 0.1, 1.0],
                     CellState::EmptyNumber(num) => [0.1, 0.1, 1.0, 1.0],
-                    CellState::Bomb =>             [0.9, 0.1, 0.1, 1.0],
+                    CellState::Bomb =>             [1.0, 0.1, 0.1, 1.0],
+                    CellState::FlaggedBomb =>      [0.1, 1.0, 0.1, 1.0],
+                    CellState::FlaggedBlank =>     [0.1, 0.1, 0.1, 1.0],
                 };
-                let cell_rect = [
-                    settings.position[0] + (x as f64) * (cell_size as f64),
-                    settings.position[1] + (y as f64) * (cell_size as f64),
-                    cell_size, cell_size
-                ];
+                let xpos = settings.position[0] + (x as f64) * (cell_size as f64);
+                let ypos = settings.position[1] + (y as f64) * (cell_size as f64);
+                let cell_rect = [xpos, ypos, cell_size, cell_size];
                 Rectangle::new(color)
                     .draw(cell_rect, &c.draw_state, c.transform, g);
+
+                if let CellState::EmptyNumber(num) = controller.gameboard.cells[y][x] {
+                    let character = glyphs.character(34, num);
+                    let ch_x = xpos + 15.0 + character.left();
+                    let ch_y = ypos + 34.0 - character.top();
+                    text_image.draw(character.texture, &c.draw_state,
+                        c.transform.trans(ch_x, ch_y), g);
+                }
             }
         }
         

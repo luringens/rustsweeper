@@ -17,6 +17,10 @@ pub enum CellState {
     EmptyNumber(char),
     // An exploding bomb!
     Bomb,
+    // A flagged bomb.
+    FlaggedBomb,
+    // A flagged empty space. Mistakes were made.
+    FlaggedBlank,
 }
 
 /// Stores game board information.
