@@ -25,7 +25,7 @@ impl GameboardController {
     }
 
     /// Handles events.
-    pub fn event<E: GenericEvent>(&mut self, offset: [f64; 2], size: f64, e: &E) {
+    pub fn event<E: GenericEvent>(&mut self, offset: (f64, f64), size: f64, e: &E) {
         use piston::input::{Button, MouseButton};
 
         if let Some(pos) = e.mouse_cursor_args() {
@@ -87,10 +87,10 @@ impl GameboardController {
         }
     }
 
-    fn get_selected_cell(&self, offset: [f64; 2], size: f64) -> Option<(usize, usize)> {
+    fn get_selected_cell(&self, offset: (f64, f64), size: f64) -> Option<(usize, usize)> {
         // Find coordinates relative to upper left corner.
-        let x = self.cursor_pos[0] - offset[0];
-        let y = self.cursor_pos[1] - offset[1];
+        let x = self.cursor_pos[0] - offset.0;
+        let y = self.cursor_pos[1] - offset.1;
         // Check that coordinates are inside the board.
         if x >= 0.0 && x < size && y >= 0.0 && y < size {
             let cell_x = (x / size * 10.0) as usize;

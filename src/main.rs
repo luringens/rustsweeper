@@ -25,7 +25,7 @@ mod gameboard_view;
 
 fn main() {
     let opengl = OpenGL::V4_4;
-    let settings = WindowSettings::new("Sudoku", [512; 2])
+    let settings = WindowSettings::new("Sudoku", [420; 2])
         .opengl(opengl)
         .exit_on_esc(true);
 
