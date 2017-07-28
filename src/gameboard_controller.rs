@@ -66,6 +66,12 @@ impl GameboardController {
                     CellState::HiddenBlank => {
                         self.gameboard.cells[pos.1][pos.0] = CellState::FlaggedBlank
                     }
+                    CellState::FlaggedBomb => {
+                        self.gameboard.cells[pos.1][pos.0] = CellState::HiddenBomb
+                    }
+                    CellState::FlaggedBlank => {
+                        self.gameboard.cells[pos.1][pos.0] = CellState::HiddenBlank
+                    }
                     _ => {}
                 }
             }
@@ -89,11 +95,10 @@ impl GameboardController {
         let mut count: u8 = 0;
         for dy in -1..2 as i8 {
             for dx in -1..2 as i8 {
-                println!("{}, {}", dx, dy);
                 let newx = x as i8 + dx;
                 let newy = y as i8 + dy;
-                if newx > 0 && newy > 0 && newx < BOARDSIZE as i8 - 1 &&
-                   newy < BOARDSIZE as i8 - 1 && (newx != 0 || newy != 0) {
+                if newx >= 0 && newy >= 0 && newx < BOARDSIZE as i8 && newy < BOARDSIZE as i8 &&
+                   (dx != 0 || dy != 0) {
                     let celltype = self.gameboard.cells[newx as usize][newy as usize];
                     count += match celltype {
                         CellState::Bomb | CellState::HiddenBomb => 1,

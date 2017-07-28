@@ -69,7 +69,8 @@ impl GameboardView {
         where C: CharacterCache<Texture = G::Texture>
     {
         use graphics::{Line, Rectangle, Image, Transformed};
-        use gameboard::{CellState, BOARDSIZE};
+        use gameboard::BOARDSIZE;
+        use gameboard::CellState::*;
 
         let ref settings = self.settings;
         let board_rect = [settings.position[0], settings.position[1], settings.size, settings.size];
@@ -83,20 +84,18 @@ impl GameboardView {
         for y in 0..BOARDSIZE {
             for x in 0..BOARDSIZE {
                 let color = match controller.gameboard.cells[y][x] {
-                    CellState::HiddenBlank => [0.1, 1.0, 1.0, 1.0],
-                    CellState::HiddenBomb => [1.0, 0.1, 1.0, 1.0],
-                    CellState::EmptyBlank => [1.0, 1.0, 0.1, 1.0],
-                    CellState::EmptyNumber(num) => [0.1, 0.1, 1.0, 1.0],
-                    CellState::Bomb => [1.0, 0.1, 0.1, 1.0],
-                    CellState::FlaggedBomb => [0.1, 1.0, 0.1, 1.0],
-                    CellState::FlaggedBlank => [0.1, 0.1, 0.1, 1.0],
+                    HiddenBlank | HiddenBomb => [0.161, 0.31, 0.427, 1.0],
+                    EmptyBlank | EmptyNumber(_) => [0.443, 0.557, 0.643, 1.0],
+                    Bomb => [1.0, 0.0, 0.247, 1.0],
+                    FlaggedBomb | FlaggedBlank => [0.1, 1.0, 0.1, 1.0],
+                    FlaggedBlank => [0.1, 0.1, 0.1, 1.0],
                 };
                 let xpos = settings.position[0] + (x as f64) * (cell_size as f64);
                 let ypos = settings.position[1] + (y as f64) * (cell_size as f64);
                 let cell_rect = [xpos, ypos, cell_size, cell_size];
                 Rectangle::new(color).draw(cell_rect, &c.draw_state, c.transform, g);
 
-                if let CellState::EmptyNumber(num) = controller.gameboard.cells[y][x] {
+                if let EmptyNumber(num) = controller.gameboard.cells[y][x] {
                     let character = glyphs.character(34, num);
                     let ch_x = xpos + 15.0 + character.left();
                     let ch_y = ypos + 34.0 - character.top();
