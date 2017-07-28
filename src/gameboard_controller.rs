@@ -37,20 +37,7 @@ impl GameboardController {
 
             // Check that coordinates are inside the board.
             if let Some(pos) = self.get_selected_cell(offset, size) {
-                match self.gameboard.cells[pos.1][pos.0] {
-                    CellState::HiddenBomb => self.gameboard.cells[pos.1][pos.0] = CellState::Bomb,
-                    CellState::HiddenBlank => {
-                        let adjacent = self.count_adjacent_bombs(pos.1, pos.0);
-                        match adjacent {
-                            0 => self.gameboard.cells[pos.1][pos.0] = CellState::EmptyBlank,
-                            _ => {
-                                self.gameboard.cells[pos.1][pos.0] =
-                                    CellState::EmptyNumber((adjacent + 48) as char)
-                            }
-                        }
-                    }
-                    _ => {}
-                }
+                self.open_cell(pos.0, pos.1);
             }
         }
 
@@ -59,22 +46,44 @@ impl GameboardController {
 
             // Check that coordinates are inside the board.
             if let Some(pos) = self.get_selected_cell(offset, size) {
-                match self.gameboard.cells[pos.1][pos.0] {
-                    CellState::HiddenBomb => {
-                        self.gameboard.cells[pos.1][pos.0] = CellState::FlaggedBomb
+                self.flag_cell(pos.0, pos.1);
+            }
+        }
+    }
+
+    fn open_cell(&mut self, x: usize, y: usize) {
+        match self.gameboard.cells[y][x] {
+            CellState::HiddenBomb => self.gameboard.cells[y][x] = CellState::Bomb,
+            CellState::HiddenBlank => {
+                let adjacent = self.count_adjacent_bombs(y, x);
+                match adjacent {
+                    0 => {
+                        self.gameboard.cells[y][x] = CellState::EmptyBlank;
+                        for dy in -1..2 as i8 {
+                            for dx in -1..2 as i8 {
+                                if self.is_valid_cell(x as i8 + dx, y as i8 + dy) {
+                                    self.open_cell((x as i8 + dx) as usize,
+                                                   (y as i8 + dy) as usize);
+                                }
+                            }
+                        }
                     }
-                    CellState::HiddenBlank => {
-                        self.gameboard.cells[pos.1][pos.0] = CellState::FlaggedBlank
+                    _ => {
+                        self.gameboard.cells[y][x] = CellState::EmptyNumber((adjacent + 48) as char)
                     }
-                    CellState::FlaggedBomb => {
-                        self.gameboard.cells[pos.1][pos.0] = CellState::HiddenBomb
-                    }
-                    CellState::FlaggedBlank => {
-                        self.gameboard.cells[pos.1][pos.0] = CellState::HiddenBlank
-                    }
-                    _ => {}
                 }
             }
+            _ => {}
+        }
+    }
+
+    fn flag_cell(&mut self, x: usize, y: usize) {
+        self.gameboard.cells[y][x] = match self.gameboard.cells[y][x] {
+            CellState::HiddenBomb => CellState::FlaggedBomb,
+            CellState::HiddenBlank => CellState::FlaggedBlank,
+            CellState::FlaggedBomb => CellState::HiddenBomb,
+            CellState::FlaggedBlank => CellState::HiddenBlank,
+            _ => self.gameboard.cells[y][x],
         }
     }
 
@@ -91,7 +100,12 @@ impl GameboardController {
         None
     }
 
+    fn is_valid_cell(&self, x: i8, y: i8) -> bool {
+        x >= 0 && x < BOARDSIZE as i8 && y >= 0 && y < BOARDSIZE as i8
+    }
+
     fn count_adjacent_bombs(&self, x: usize, y: usize) -> u8 {
+        use gameboard::CellState::*;
         let mut count: u8 = 0;
         for dy in -1..2 as i8 {
             for dx in -1..2 as i8 {
@@ -101,7 +115,7 @@ impl GameboardController {
                    (dx != 0 || dy != 0) {
                     let celltype = self.gameboard.cells[newx as usize][newy as usize];
                     count += match celltype {
-                        CellState::Bomb | CellState::HiddenBomb => 1,
+                        Bomb | HiddenBomb | FlaggedBomb => 1,
                         _ => 0,
                     }
                 }

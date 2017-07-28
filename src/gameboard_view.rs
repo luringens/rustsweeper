@@ -88,7 +88,6 @@ impl GameboardView {
                     EmptyBlank | EmptyNumber(_) => [0.443, 0.557, 0.643, 1.0],
                     Bomb => [1.0, 0.0, 0.247, 1.0],
                     FlaggedBomb | FlaggedBlank => [0.1, 1.0, 0.1, 1.0],
-                    FlaggedBlank => [0.1, 0.1, 0.1, 1.0],
                 };
                 let xpos = settings.position[0] + (x as f64) * (cell_size as f64);
                 let ypos = settings.position[1] + (y as f64) * (cell_size as f64);
