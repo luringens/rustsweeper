@@ -41,7 +41,7 @@ fn main() {
     let gameboard_view = GameboardView::new(gameboard_view_settings);
 
     let texture_settings = TextureSettings::new().filter(Filter::Nearest);
-    let ref mut glyphs = GlyphCache::new("assets/FiraSans-Regular.ttf", texture_settings)
+    let ref mut glyphs = GlyphCache::new("assets/Roboto-Bold.ttf", texture_settings)
         .expect("Could not load font");
 
     while let Some(e) = events.next(&mut window) {
