@@ -25,7 +25,7 @@ mod gameboard_view;
 
 fn main() {
     let opengl = OpenGL::V4_4;
-    let settings = WindowSettings::new("Sudoku", [420; 2])
+    let settings = WindowSettings::new("Sudoku", [600; 2])
         .opengl(opengl)
         .exit_on_esc(true);
 
@@ -51,7 +51,7 @@ fn main() {
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 use graphics::clear;
-                clear([1.0; 4], g);
+                clear([0.443, 0.557, 0.643, 1.0], g);
                 gameboard_view.draw(&gameboard_controller, glyphs, &c, g);
             });
         }
