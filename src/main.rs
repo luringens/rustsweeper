@@ -27,6 +27,8 @@ fn main() {
     let opengl = OpenGL::V4_4;
     let settings = WindowSettings::new("Sudoku", [600; 2])
         .opengl(opengl)
+        .samples(2)
+        .resizable(false)
         .exit_on_esc(true);
 
     let mut window: GlutinWindow = settings.build()
