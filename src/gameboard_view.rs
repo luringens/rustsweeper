@@ -6,6 +6,7 @@ use graphics::character::CharacterCache;
 
 use GameboardController;
 use gameboard::BOARDSIZE;
+use traits::Renderer;
 
 /// Stores gameboard view settings.
 pub struct GameboardViewSettings {
@@ -63,9 +64,11 @@ impl GameboardView {
     pub fn new(settings: GameboardViewSettings) -> GameboardView {
         GameboardView { settings: settings }
     }
+}
 
+impl Renderer for GameboardView {
     /// Draw gameboard.
-    pub fn draw<G: Graphics, C>(&self,
+    fn draw<G: Graphics, C>(&self,
                                 controller: &GameboardController,
                                 glyphs: &mut C,
                                 c: &Context,

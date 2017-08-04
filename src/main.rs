@@ -8,6 +8,7 @@ extern crate graphics;
 extern crate opengl_graphics;
 extern crate rand;
 
+use std::cell::RefCell;
 use piston::window::WindowSettings;
 use piston::event_loop::{Events, EventLoop, EventSettings};
 use piston::input::RenderEvent;
@@ -15,13 +16,17 @@ use glutin_window::GlutinWindow;
 use opengl_graphics::{OpenGL, Filter, GlGraphics, TextureSettings};
 use opengl_graphics::glyph_cache::GlyphCache;
 
-pub use gameboard::Gameboard;
-pub use gameboard_controller::GameboardController;
-pub use gameboard_view::{GameboardView, GameboardViewSettings};
+use gameboard::Gameboard;
+use gameboard_controller::GameboardController;
+use gameboard_view::*;
+use traits::*;
+use mainmenu::*;
 
 mod gameboard;
 mod gameboard_controller;
 mod gameboard_view;
+mod mainmenu;
+mod traits;
 
 fn main() {
     let opengl = OpenGL::V4_4;
@@ -46,15 +51,19 @@ fn main() {
     let ref mut glyphs = GlyphCache::new("assets/Roboto-Bold.ttf", texture_settings)
         .expect("Could not load font");
 
+    let mainmenu = MainMenu::new(MainMenuSettings::new());
+
+    let mut renderer: Cell<Renderer> = RefCell::new(&mainmenu);
+    let mut eventhandler: Cell<EventHandler> = RefCell:new(&mainmenu);
+
     while let Some(e) = events.next(&mut window) {
-        gameboard_controller.event(gameboard_view.settings.position,
+        eventhandler.event(gameboard_view.settings.position,
                                    gameboard_view.settings.size,
                                    &e);
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
-                use graphics::clear;
-                clear([0.44, 0.56, 0.64, 1.0], g);
-                gameboard_view.draw(&gameboard_controller, glyphs, &c, g);
+                graphics::clear([0.44, 0.56, 0.64, 1.0], g);
+                renderer.draw(&gameboard_controller, glyphs, &c, g);
             });
         }
     }

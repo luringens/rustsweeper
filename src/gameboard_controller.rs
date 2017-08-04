@@ -3,6 +3,7 @@
 use piston::input::GenericEvent;
 use Gameboard;
 use gameboard::{CellState, BOARDSIZE};
+use traits::EventHandler;
 
 /// Handles events for the game.
 pub struct GameboardController {
@@ -21,33 +22,6 @@ impl GameboardController {
             gameboard: gameboard,
             selected_cell: None,
             cursor_pos: [0.0; 2],
-        }
-    }
-
-    /// Handles events.
-    pub fn event<E: GenericEvent>(&mut self, offset: (f64, f64), size: f64, e: &E) {
-        use piston::input::{Button, MouseButton};
-
-        if let Some(pos) = e.mouse_cursor_args() {
-            self.cursor_pos = pos;
-        }
-
-        // Left click
-        if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
-
-            // Check that coordinates are inside the board.
-            if let Some(pos) = self.get_selected_cell(offset, size) {
-                self.open_cell(pos.0, pos.1);
-            }
-        }
-
-        // Right click
-        if let Some(Button::Mouse(MouseButton::Right)) = e.press_args() {
-
-            // Check that coordinates are inside the board.
-            if let Some(pos) = self.get_selected_cell(offset, size) {
-                self.flag_cell(pos.0, pos.1);
-            }
         }
     }
 
@@ -122,5 +96,34 @@ impl GameboardController {
             }
         }
         count
+    }
+}
+
+impl EventHandler for GameboardController {
+    /// Handles events.
+    fn event<E: GenericEvent>(&mut self, offset: (f64, f64), size: f64, e: &E) {
+        use piston::input::{Button, MouseButton};
+
+        if let Some(pos) = e.mouse_cursor_args() {
+            self.cursor_pos = pos;
+        }
+
+        // Left click
+        if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
+
+            // Check that coordinates are inside the board.
+            if let Some(pos) = self.get_selected_cell(offset, size) {
+                self.open_cell(pos.0, pos.1);
+            }
+        }
+
+        // Right click
+        if let Some(Button::Mouse(MouseButton::Right)) = e.press_args() {
+
+            // Check that coordinates are inside the board.
+            if let Some(pos) = self.get_selected_cell(offset, size) {
+                self.flag_cell(pos.0, pos.1);
+            }
+        }
     }
 }

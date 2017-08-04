@@ -1,3 +1,11 @@
+use graphics::types::Color;
+use graphics::{Context, Graphics, Text};
+use graphics::character::CharacterCache;
+use piston::input::GenericEvent;
+
+use gameboard_controller::GameboardController;
+use traits::*;
+
 /// Stores main menu settings.
 pub struct MainMenuSettings {
     /// Position from left-top corner.
@@ -23,17 +31,22 @@ impl MainMenuSettings {
 }
 
 pub struct MainMenu {
-    pub settings: GameboardViewSettings,
-    cursor_pos: [0.0; 2],
+    pub settings: MainMenuSettings,
+    cursor_pos: [f64; 2],
 }
 
 impl MainMenu {
     /// Creates a new main menu object view.
     pub fn new(settings: MainMenuSettings) -> MainMenu {
-        MainMenu { settings: settings }
+        MainMenu {
+            settings: settings,
+            cursor_pos: [0.0, 0.0],
+        }
     }
+}
 
-    pub fn event<E: GenericEvent>(&mut self, offset: (f64, f64), size: f64, e: &E) {
+impl EventHandler for MainMenu {
+    fn event<E: GenericEvent>(&mut self, offset: (f64, f64), size: f64, e: &E) {
         use piston::input::{Button, MouseButton};
 
         if let Some(pos) = e.mouse_cursor_args() {
@@ -42,30 +55,28 @@ impl MainMenu {
 
         // Left click
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
-            if  {
-                self.open_cell(pos.0, pos.1);
+            if true {
+                //todo
             }
         }
     }
+}
 
-    pub fn draw<G: Graphics, C>(&self,
-                                controller: &GameboardController,
+impl Renderer for MainMenu {
+    fn draw<G: Graphics, C>(&self,
+                                controller: &gameboard::GameboardController,
                                 glyphs: &mut C,
                                 c: &Context,
                                 g: &mut G)
         where C: CharacterCache<Texture = G::Texture>
     {
         // Title
-        let text_image = Image::new_color(settings.text_color);
-        for letter in "Rustsweeper!".chars().enumerate() {
-            let character = glyphs.ch character(34, num);
-            let ch_x = xpos + character.left() + 13.0;
-            let ch_y = ypos - character.top() + 33.0;
-            text_image.draw(character.texture,
-                            &c.draw_state,
-                            c.transform.trans(ch_x, ch_y),
-                            g);
-        }
+        text::Text::new_color([0.0, 0.0, 0.0, 1.0], 32).draw(
+            "Rustsweeper!",
+            &mut glyphs,
+            &c.draw_state,
+            transform, g
+        );
     }
 }
 
