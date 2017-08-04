@@ -53,7 +53,7 @@ fn main() {
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c, g| {
                 use graphics::clear;
-                clear([0.443, 0.557, 0.643, 1.0], g);
+                clear([0.44, 0.56, 0.64, 1.0], g);
                 gameboard_view.draw(&gameboard_controller, glyphs, &c, g);
             });
         }

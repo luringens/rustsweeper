@@ -25,8 +25,6 @@ pub struct GameboardViewSettings {
     pub board_edge_radius: f64,
     /// Edge radius around the cells.
     pub cell_edge_radius: f64,
-    /// Selected cell background color
-    pub selected_cell_background_color: Color,
     /// Text color.
     pub text_color: Color,
     /// Cell corner rounding.
@@ -40,17 +38,16 @@ impl GameboardViewSettings {
     pub fn new() -> GameboardViewSettings {
         GameboardViewSettings {
             position: (0.0, 0.0),
-            size: 585.0,
+            size: 600.0,
             background_color: [0.82, 0.9, 0.87, 1.0],
             border_color: [0.0, 0.0, 0.2, 1.0],
-            board_edge_color: [0.0, 0.0, 0.2, 1.0],
+            board_edge_radius: 3.0,
+            board_edge_color: [0.3, 0.3, 0.5, 1.0],
             cell_edge_color: [0.69, 0.76, 0.73, 1.0],
-            board_edge_radius: 5.0,
             cell_edge_radius: 1.0,
-            selected_cell_background_color: [0.9, 0.9, 1.0, 1.0],
-            text_color: [0.0, 0.0, 0.1, 1.0],
             cell_corner_rounding: 10.0,
-            cell_padding: 15.0,
+            cell_padding: 7.0,
+            text_color: [0.0, 0.0, 0.1, 1.0],
         }
     }
 }
@@ -81,25 +78,23 @@ impl GameboardView {
         let ref settings = self.settings;
         let board_rect = [settings.position.0,
                           settings.position.1,
-                          settings.size + settings.cell_padding,
-                          settings.size + settings.cell_padding];
+                          settings.size,
+                          settings.size];
 
         // Draw background
         Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
 
         // Draw board edge.
-        Rectangle::new_border(settings.board_edge_color, settings.board_edge_radius)
-            .draw(board_rect, &c.draw_state, c.transform, g);
+        //Rectangle::new_border(settings.board_edge_color, settings.board_edge_radius)
+        //    .draw(board_rect, &c.draw_state, c.transform, g);
 
         // Draw cell borders.
         let cell_edge = Line::new(settings.cell_edge_color, settings.cell_edge_radius);
         for i in 1..BOARDSIZE {
-            let x = settings.position.0 + i as f64 / BOARDSIZE as f64 * settings.size +
-                    (settings.cell_padding / 2.0);
-            let y = settings.position.1 + i as f64 / BOARDSIZE as f64 * settings.size +
-                    (settings.cell_padding / 2.0);
-            let x2 = settings.position.0 + settings.size + (settings.cell_padding / 2.0);
-            let y2 = settings.position.1 + settings.size + (settings.cell_padding / 2.0);
+            let x = settings.position.0 + i as f64 / BOARDSIZE as f64 * settings.size;
+            let y = settings.position.1 + i as f64 / BOARDSIZE as f64 * settings.size;
+            let x2 = settings.position.0 + settings.size;
+            let y2 = settings.position.1 + settings.size;
 
             let vline = [x, settings.position.1, x, y2];
             cell_edge.draw(vline, &c.draw_state, c.transform, g);
@@ -125,12 +120,12 @@ impl GameboardView {
                            settings.cell_padding;
                 let cell_rect = [xpos,
                                  ypos,
-                                 cell_size - settings.cell_padding,
-                                 cell_size - settings.cell_padding];
+                                 cell_size - settings.cell_padding * 2.0,
+                                 cell_size - settings.cell_padding * 2.0];
                 let cell_rect_2 = [xpos,
                                    ypos - 5.0,
-                                   cell_size - settings.cell_padding,
-                                   cell_size - settings.cell_padding];
+                                   cell_size - settings.cell_padding * 2.0,
+                                   cell_size - settings.cell_padding * 2.0];
 
                 match controller.gameboard.cells[y][x] {
                     HiddenBlank | HiddenBomb => {
@@ -149,8 +144,8 @@ impl GameboardView {
 
                 if let EmptyNumber(num) = controller.gameboard.cells[y][x] {
                     let character = glyphs.character(34, num);
-                    let ch_x = xpos + settings.cell_padding + character.left() - 3.0;
-                    let ch_y = ypos + settings.cell_padding - character.top() + 18.0;
+                    let ch_x = xpos + character.left() + 13.0;
+                    let ch_y = ypos - character.top() + 33.0;
                     text_image.draw(character.texture,
                                     &c.draw_state,
                                     c.transform.trans(ch_x, ch_y),
