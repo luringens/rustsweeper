@@ -79,7 +79,10 @@ impl GameboardView {
         use gameboard::CellState::*;
 
         let ref settings = self.settings;
-        let board_rect = [settings.position.0, settings.position.1, settings.size + settings.cell_padding, settings.size + settings.cell_padding];
+        let board_rect = [settings.position.0,
+                          settings.position.1,
+                          settings.size + settings.cell_padding,
+                          settings.size + settings.cell_padding];
 
         // Draw background
         Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
@@ -91,8 +94,10 @@ impl GameboardView {
         // Draw cell borders.
         let cell_edge = Line::new(settings.cell_edge_color, settings.cell_edge_radius);
         for i in 1..BOARDSIZE {
-            let x = settings.position.0 + i as f64 / BOARDSIZE as f64 * settings.size + (settings.cell_padding / 2.0);
-            let y = settings.position.1 + i as f64 / BOARDSIZE as f64 * settings.size + (settings.cell_padding / 2.0);
+            let x = settings.position.0 + i as f64 / BOARDSIZE as f64 * settings.size +
+                    (settings.cell_padding / 2.0);
+            let y = settings.position.1 + i as f64 / BOARDSIZE as f64 * settings.size +
+                    (settings.cell_padding / 2.0);
             let x2 = settings.position.0 + settings.size + (settings.cell_padding / 2.0);
             let y2 = settings.position.1 + settings.size + (settings.cell_padding / 2.0);
 
@@ -114,19 +119,34 @@ impl GameboardView {
                     Bomb => [1.0, 0.0, 0.247, 1.0],
                     FlaggedBomb | FlaggedBlank => [0.1, 1.0, 0.1, 1.0],
                 };
-                let xpos = settings.position.0 + (x as f64) * (cell_size as f64) + settings.cell_padding;
-                let ypos = settings.position.1 + (y as f64) * (cell_size as f64) + settings.cell_padding;
-                let cell_rect = [xpos, ypos, cell_size - settings.cell_padding, cell_size - settings.cell_padding];
-                let cell_rect_2 = [xpos, ypos - 5.0, cell_size - settings.cell_padding, cell_size - settings.cell_padding];
-                
+                let xpos = settings.position.0 + (x as f64) * (cell_size as f64) +
+                           settings.cell_padding;
+                let ypos = settings.position.1 + (y as f64) * (cell_size as f64) +
+                           settings.cell_padding;
+                let cell_rect = [xpos,
+                                 ypos,
+                                 cell_size - settings.cell_padding,
+                                 cell_size - settings.cell_padding];
+                let cell_rect_2 = [xpos,
+                                   ypos - 5.0,
+                                   cell_size - settings.cell_padding,
+                                   cell_size - settings.cell_padding];
+
                 match controller.gameboard.cells[y][x] {
                     HiddenBlank | HiddenBomb => {
-                        Rectangle::new_round([0.01, 0.52, 0.59, 1.0], settings.cell_corner_rounding).draw(cell_rect, &c.draw_state, c.transform, g);
-                        Rectangle::new_round([0.01, 0.71, 0.81, 1.0], settings.cell_corner_rounding).draw(cell_rect_2, &c.draw_state, c.transform, g);
+                        Rectangle::new_round([0.01, 0.52, 0.59, 1.0],
+                                             settings.cell_corner_rounding)
+                            .draw(cell_rect, &c.draw_state, c.transform, g);
+                        Rectangle::new_round([0.01, 0.71, 0.81, 1.0],
+                                             settings.cell_corner_rounding)
+                            .draw(cell_rect_2, &c.draw_state, c.transform, g);
                     }
-                    _ => Rectangle::new_round(color, settings.cell_corner_rounding).draw(cell_rect, &c.draw_state, c.transform, g),
+                    _ => {
+                        Rectangle::new_round(color, settings.cell_corner_rounding)
+                            .draw(cell_rect, &c.draw_state, c.transform, g)
+                    }
                 };
-                
+
                 if let EmptyNumber(num) = controller.gameboard.cells[y][x] {
                     let character = glyphs.character(34, num);
                     let ch_x = xpos + settings.cell_padding + character.left() - 3.0;
