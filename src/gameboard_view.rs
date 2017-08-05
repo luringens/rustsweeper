@@ -57,39 +57,33 @@ impl GameboardViewSettings {
 pub struct GameboardView {
     /// Stores gameboard view settings.
     pub settings: GameboardViewSettings,
+    /// The gameboard controller
+    pub controller: GameboardController,
 }
 
 impl GameboardView {
     /// Creates a new gameboard view.
-    pub fn new(settings: GameboardViewSettings) -> GameboardView {
-        GameboardView { settings: settings }
+    pub fn new(settings: GameboardViewSettings, controller: GameboardController) -> GameboardView {
+        GameboardView {
+            settings: settings,
+            controller: controller,
+        }
     }
 }
 
 impl Renderer for GameboardView {
     /// Draw gameboard.
-    fn draw<G: Graphics, C>(&self,
-                                controller: &GameboardController,
-                                glyphs: &mut C,
-                                c: &Context,
-                                g: &mut G)
+    fn draw<G: Graphics, C>(&self, glyphs: &mut C, c: &Context, g: &mut G)
         where C: CharacterCache<Texture = G::Texture>
     {
         use graphics::{Line, Rectangle, Image, Transformed};
         use gameboard::CellState::*;
 
-        let ref settings = self.settings;
-        let board_rect = [settings.position.0,
-                          settings.position.1,
-                          settings.size,
-                          settings.size];
+        let settings = &self.settings;
+        let board_rect = [settings.position.0, settings.position.1, settings.size, settings.size];
 
         // Draw background
         Rectangle::new(settings.background_color).draw(board_rect, &c.draw_state, c.transform, g);
-
-        // Draw board edge.
-        //Rectangle::new_border(settings.board_edge_color, settings.board_edge_radius)
-        //    .draw(board_rect, &c.draw_state, c.transform, g);
 
         // Draw cell borders.
         let cell_edge = Line::new(settings.cell_edge_color, settings.cell_edge_radius);
@@ -111,7 +105,7 @@ impl Renderer for GameboardView {
         let text_image = Image::new_color(settings.text_color);
         for y in 0..BOARDSIZE {
             for x in 0..BOARDSIZE {
-                let color = match controller.gameboard.cells[y][x] {
+                let color = match self.controller.gameboard.cells[y][x] {
                     HiddenBlank | HiddenBomb => [0.161, 0.31, 0.427, 1.0],
                     EmptyBlank | EmptyNumber(_) => [0.01, 0.52, 0.59, 1.0],
                     Bomb => [1.0, 0.0, 0.247, 1.0],
@@ -130,7 +124,7 @@ impl Renderer for GameboardView {
                                    cell_size - settings.cell_padding * 2.0,
                                    cell_size - settings.cell_padding * 2.0];
 
-                match controller.gameboard.cells[y][x] {
+                match self.controller.gameboard.cells[y][x] {
                     HiddenBlank | HiddenBomb => {
                         Rectangle::new_round([0.01, 0.52, 0.59, 1.0],
                                              settings.cell_corner_rounding)
@@ -145,7 +139,7 @@ impl Renderer for GameboardView {
                     }
                 };
 
-                if let EmptyNumber(num) = controller.gameboard.cells[y][x] {
+                if let EmptyNumber(num) = self.controller.gameboard.cells[y][x] {
                     let character = glyphs.character(34, num);
                     let ch_x = xpos + character.left() + 13.0;
                     let ch_y = ypos - character.top() + 33.0;

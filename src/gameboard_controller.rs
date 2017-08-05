@@ -1,9 +1,11 @@
 //! Gameboard controller.
 
 use piston::input::GenericEvent;
+use piston::input::keyboard::Key;
 use Gameboard;
 use gameboard::{CellState, BOARDSIZE};
 use traits::EventHandler;
+use state::State;
 
 /// Handles events for the game.
 pub struct GameboardController {
@@ -61,10 +63,10 @@ impl GameboardController {
         }
     }
 
-    fn get_selected_cell(&self, offset: (f64, f64), size: f64) -> Option<(usize, usize)> {
+    fn get_selected_cell(&self, size: f64) -> Option<(usize, usize)> {
         // Find coordinates relative to upper left corner.
-        let x = self.cursor_pos[0] - offset.0;
-        let y = self.cursor_pos[1] - offset.1;
+        let x = self.cursor_pos[0];
+        let y = self.cursor_pos[1];
         // Check that coordinates are inside the board.
         if x >= 0.0 && x < size && y >= 0.0 && y < size {
             let cell_x = (x / size * 10.0) as usize;
@@ -101,7 +103,7 @@ impl GameboardController {
 
 impl EventHandler for GameboardController {
     /// Handles events.
-    fn event<E: GenericEvent>(&mut self, offset: (f64, f64), size: f64, e: &E) {
+    fn event<E: GenericEvent>(&mut self, size: (f64, f64), e: &E) -> State {
         use piston::input::{Button, MouseButton};
 
         if let Some(pos) = e.mouse_cursor_args() {
@@ -112,18 +114,25 @@ impl EventHandler for GameboardController {
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
 
             // Check that coordinates are inside the board.
-            if let Some(pos) = self.get_selected_cell(offset, size) {
+            if let Some(pos) = self.get_selected_cell(size.0) {
                 self.open_cell(pos.0, pos.1);
             }
+        }
+
+        // Exit to main menu when you press ESC.
+        if let Some(Button::Keyboard(Key::Escape)) = e.press_args() {
+            return State::MainMenu;
         }
 
         // Right click
         if let Some(Button::Mouse(MouseButton::Right)) = e.press_args() {
 
             // Check that coordinates are inside the board.
-            if let Some(pos) = self.get_selected_cell(offset, size) {
+            if let Some(pos) = self.get_selected_cell(size.0) {
                 self.flag_cell(pos.0, pos.1);
             }
         }
+
+        State::GameBoard
     }
 }
